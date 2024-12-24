@@ -110,9 +110,9 @@ const FeePayment = () => {
           }
         },
         prefill: {
-          name: studentProfile.studentName,
-          email: studentProfile.email,
-          phone: studentProfile?.studentMobile,
+          name: studentProfile?.studentName,
+          email: studentProfile?.email,
+          contact: studentProfile?.studentMobile,
         },
       });
 
