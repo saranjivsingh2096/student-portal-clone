@@ -91,7 +91,7 @@ const LoginPage = () => {
               <div className="col-md-6 text-center">
                 <img
                   className="mt-1"
-                  src="https://sp.srmist.edu.in/srmiststudentportal/resources/Image/srmist.jpg"
+                  src="./images/srmist.jpg"
                   alt="SRM IST"
                   width="275px"
                   height="90px"
@@ -247,10 +247,7 @@ const LoginPage = () => {
                         {/* Show loading GIF when logging in */}
                         {loading && (
                           <div className="mt-3">
-                            <img
-                              src="https://sp.srmist.edu.in/srmiststudentportal/resources/Image/wait.gif"
-                              alt="Loading..."
-                            />
+                            <img src="./images/wait.gif" alt="Loading..." />
                             <p>Logging in...</p>
                           </div>
                         )}

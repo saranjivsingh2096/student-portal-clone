@@ -40,10 +40,7 @@ const PersonalDetails = () => {
           <div id="layoutSidenav_content" className="flex-grow-1">
             <div className="container mt-4">
               <div>
-                <img
-                  src="https://sp.srmist.edu.in/srmiststudentportal/resources/Image/wait.gif"
-                  alt="Loading..."
-                />
+                <img src="./images/wait.gif" alt="Loading..." />
                 <p>Please wait...</p>
               </div>
             </div>

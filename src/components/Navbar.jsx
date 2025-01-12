@@ -29,10 +29,7 @@ const Navbar = ({ toggleSidebar }) => {
         <i className="fa fa-bars"></i>
       </button>
       <div className="navbar-brand">
-        <img
-          src="https://sp.srmist.edu.in/srmiststudentportal/resources/Image/srmist.png"
-          alt="SRM Logo"
-        />
+        <img src="./images/srmist.png" alt="SRM Logo" />
         <br />
         <font style={{ fontSize: "9pt" }}>Student Portal</font>
       </div>
