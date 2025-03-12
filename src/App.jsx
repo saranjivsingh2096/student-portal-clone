@@ -12,6 +12,7 @@ import Dashboard from "./Dashboard";
 import PersonalDetails from "./PersonalDetails";
 import Attendance from "./Attendance";
 import FeePayment from "./FeePayment";
+import InternalMarks from "./InternalMarks";
 import WIP from "./WIP";
 
 function App() {
@@ -112,7 +113,7 @@ function App() {
           path="/internal-marks"
           element={
             <ProtectedRoute>
-              <WIP />
+              <InternalMarks />
             </ProtectedRoute>
           }
         />
