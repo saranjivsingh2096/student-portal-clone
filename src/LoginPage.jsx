@@ -30,19 +30,23 @@ const LoginPage = () => {
     if (!login) {
       setLoginError("Enter a User Id");
       isValid = false;
+      refreshCaptcha();
     }
 
     if (!passwd) {
       setPasswdError("Enter a valid password");
       isValid = false;
+      refreshCaptcha();
     }
 
     if (!userCaptcha) {
       setCcodeError("Enter valid Captcha");
       isValid = false;
+      refreshCaptcha();
     } else if (userCaptcha !== captcha) {
       setErrorMessage("Incorrect CAPTCHA. Please try again.");
       isValid = false;
+      refreshCaptcha();
     }
 
     if (isValid) {
@@ -63,10 +67,16 @@ const LoginPage = () => {
           navigate("/dashboard");
         } else {
           setErrorMessage(data.message || "Invalid credentials or captcha.");
+          refreshCaptcha();
         }
       } catch (error) {
         setErrorMessage("An error occurred. Please try again.");
+        refreshCaptcha();
       }
+    }
+
+    if (!isValid) {
+      refreshCaptcha();
     }
 
     setLoading(false);
