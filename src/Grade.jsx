@@ -68,12 +68,12 @@ const Grade = () => {
     isError: isErrorGradesData,
     error: errorGradesData
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/grade-details`, // Replace with your actual grades endpoint
-    ['studentGrades'] // Unique query key for React Query
+    `${process.env.REACT_APP_API_URL}/grade-details`, 
+    ['studentGrades'] 
   );
 
-  const isLoadingGrades = isLoadingGradesData; // Use the loading state from the fetch hook
-  const isLoadingCredits = false; // Placeholder - can be combined or use isLoadingGradesData if credits are part of grades
+  const isLoadingGrades = isLoadingGradesData; 
+  const isLoadingCredits = false; 
 
   const gradeColumns = [
     { title: "Semester", key: "semester", width: "10%" },
@@ -84,18 +84,11 @@ const Grade = () => {
     { title: "Grade", key: "grade", width: "15%" },
   ];
 
-  // --- Generalized Semester Data (Dummy) ---
-  // In a real app, this would come from an API call for all grade details
   const rawSemestersData = useMemo(() => {
-    // Use fetchedGradeData if available, otherwise default to an empty array
-    // The structure from the API should match: { semesters: [ { semesterNumber: ..., courses: [...] } ] }
-    // Or if the API directly returns the array of semesters: [ { semesterNumber: ..., courses: [...] } ]
-    // For this example, I'm assuming the API directly returns the array of semester objects.
-    // Adjust if your API returns it nested under a key like 'semesters'.
     return fetchedGradeData || [];
   }, [fetchedGradeData]);
 
-  // --- Processed Academic Data with SGPAs ---
+  // Processed Academic Data with SGPAs 
   const processedSemestersData = useMemo(() => {
     return rawSemestersData.map(sem => {
       const courses = sem.courses;
@@ -114,7 +107,7 @@ const Grade = () => {
     });
   }, [rawSemestersData]);
 
-  // --- Dynamic CGPA Calculation ---
+  // Dynamic CGPA Calculation 
   const totalCGPA = useMemo(() => {
     let weightedSgpaSum = 0;
     let totalSemesterCreditsSum = 0;
@@ -133,7 +126,7 @@ const Grade = () => {
     return { label: "Total CGPA", value: cgpaValue };
   }, [processedSemestersData]);
 
-  // --- Dynamic Credit Calculation ---
+  // Dynamic Credit Calculation
   const totalCreditsRegistered = useMemo(() => {
     return processedSemestersData.reduce((total, sem) => 
       total + sem.courses.reduce((semTotal, course) => semTotal + (parseFloat(course.credit) || 0), 0)
