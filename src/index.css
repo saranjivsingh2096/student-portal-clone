@@ -21594,3 +21594,10 @@ a.badge-custom.focus {
 .razorpay-backdrop span {
   display: none;
 }
+
+.active-link {
+  color: #337ab7 !important; 
+  font-weight: bold;
+
+}
+

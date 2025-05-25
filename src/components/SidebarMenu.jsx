@@ -1,124 +1,137 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import SidebarFooter from "./SidebarFooter";
 
 const SidebarMenu = ({ studentProfile, currentDateTime }) => {
+  const getNavLinkClass = ({ isActive }) => {
+    return isActive 
+      ? "nav-link navmenu active-link" 
+      : "nav-link navmenu";
+  };
+
   return (
     <>
       <nav className="sidenav shadow-right sidenav-light">
         <div className="sidenav-menu">
           <div className="nav accordion" id="accordionSidenav">
-            <Link to="/dashboard" className="nav-link navmenu">
+            <NavLink to="/dashboard" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-tachometer-alt"></i>
               </div>
               Dashboard
-            </Link>
+            </NavLink>
 
-            <Link to="/personal-details" className="nav-link navmenu">
+            <NavLink to="/personal-details" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-user"></i>
               </div>
               Personal Information
-            </Link>
+            </NavLink>
 
-            <Link to="/internal-marks" className="nav-link navmenu">
+            <NavLink to="/internal-marks" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-chart-bar"></i>
               </div>
               Internal Marks Details
-            </Link>
+            </NavLink>
 
-            <Link to="/course-list" className="nav-link navmenu">
+            <NavLink to="/course-list" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-book"></i>
               </div>
               Course List
-            </Link>
+            </NavLink>
 
-            <Link to="/attendance-details" className="nav-link navmenu">
+            <NavLink to="/attendance-details" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-calendar-check"></i>
               </div>
               Attendance Details
-            </Link>
+            </NavLink>
 
-            <Link to="/abc-entry" className="nav-link navmenu">
+            <NavLink to="/abc-entry" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-book"></i>
               </div>
               ABC Entry Request
-            </Link>
+            </NavLink>
 
-            <Link to="/fee-payment" className="nav-link navmenu">
+            <NavLink to="/fee-payment" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-credit-card"></i>
               </div>
               Fee Payment
-            </Link>
+            </NavLink>
 
-            <Link to="/exam-hallticket" className="nav-link navmenu">
+            <NavLink to="/grade" className={getNavLinkClass}>
+              <div className="nav-link-icon">
+                <i className="fas fa-fw fa-chart-bar"></i>
+              </div>
+              Grade / Mark & Credits
+            </NavLink>
+
+            <NavLink to="/exam-hallticket" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-ticket-alt"></i>
               </div>
               Exam HallTicket
-            </Link>
+            </NavLink>
 
-            <Link to="/summer-term-registration" className="nav-link navmenu">
+            <NavLink to="/summer-term-registration" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-calendar-plus"></i>
               </div>
               Summer Term Registration
-            </Link>
+            </NavLink>
 
-            <Link to="/scribe-request" className="nav-link navmenu">
+            <NavLink to="/scribe-request" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-pencil-alt"></i>
               </div>
               Scribe Request
-            </Link>
+            </NavLink>
 
-            <Link to="/revaluation-registration" className="nav-link navmenu">
+            <NavLink to="/revaluation-registration" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-edit"></i>
               </div>
               Revaluation Registration
-            </Link>
+            </NavLink>
 
-            <Link to="/transcript" className="nav-link navmenu">
+            <NavLink to="/transcript" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-file-alt"></i>
               </div>
               Transcript
-            </Link>
+            </NavLink>
 
-            <Link to="/name-change" className="nav-link navmenu">
+            <NavLink to="/name-change" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-user-edit"></i>
               </div>
               Name Change - Gazette
-            </Link>
+            </NavLink>
 
-            <Link to="/community-certificate" className="nav-link navmenu">
+            <NavLink to="/community-certificate" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-certificate"></i>
               </div>
               Community Certificate
-            </Link>
+            </NavLink>
 
-            <Link to="/placement-insight" className="nav-link navmenu">
+            <NavLink to="/placement-insight" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-briefcase"></i>
               </div>
               Placement Insight
-            </Link>
+            </NavLink>
 
-            <Link to="/student-feedback" className="nav-link navmenu">
+            <NavLink to="/student-feedback" className={getNavLinkClass}>
               <div className="nav-link-icon">
                 <i className="fas fa-fw fa-comments"></i>
               </div>
               Student Feedback
-            </Link>
+            </NavLink>
           </div>
         </div>
         {/* Sidebar Footer */}

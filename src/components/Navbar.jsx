@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import LogoutModal from "./LogoutModal";
-import useFetchData from "../utils/useFetchData";
 
-const Navbar = ({ toggleSidebar }) => {
+const Navbar = ({ toggleSidebar, studentProfile, isLoadingProfile, isErrorProfile }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleLogoutClick = () => {
@@ -11,10 +10,6 @@ const Navbar = ({ toggleSidebar }) => {
   const handleCloseModal = () => {
     setShowModal(false);
   };
-
-  const { data: studentProfile } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`
-  );
 
   return (
     <nav

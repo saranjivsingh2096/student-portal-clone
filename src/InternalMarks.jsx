@@ -19,24 +19,42 @@ const InternalMarks = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const { data: studentProfile } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`
+  const {
+    data: studentProfile,
+    isLoading: isLoadingProfile,
+    isError: isErrorProfile,
+    error: errorProfile,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/student-profile`,
+    ['studentProfile']
   );
 
-  const { data: internalMarks } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/internal-marks`
+  const {
+    data: internalMarks,
+    isLoading: isLoadingMarks,
+    isError: isErrorMarks,
+    error: errorMarks,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/internal-marks`,
+    ['internalMarks']
   );
 
-  console.log("markDetails:", internalMarks);
-  if (
-    !studentProfile ||
-    studentProfile.length === 0 ||
-    !internalMarks ||
-    internalMarks.length === 0
-  ) {
+  // Overall loading state for the page content (profile OR marks)
+  const pageIsLoading = isLoadingProfile || isLoadingMarks;
+  // Overall error state for the page content (profile OR marks)
+  const pageIsError = isErrorProfile || isErrorMarks;
+  // Combined error message for page content (prefer profile error if both, or specific logic)
+  const pageError = errorProfile || errorMarks;
+
+  if (pageIsLoading) {
     return (
       <div>
-        <Navbar toggleSidebar={toggleSidebar} />
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile}
+          isLoadingProfile={isLoadingProfile} 
+          isErrorProfile={isErrorProfile} 
+        />
         <div
           id="layoutSidenav"
           className={`d-flex flex-grow-1 ${
@@ -46,7 +64,6 @@ const InternalMarks = () => {
           <div id="layoutSidenav_nav">
             <SidebarMenu studentProfile={studentProfile} />
           </div>
-
           <div id="layoutSidenav_content" className="flex-grow-1">
             <div className="container mt-4">
               <div>
@@ -60,11 +77,74 @@ const InternalMarks = () => {
     );
   }
 
+  if (pageIsError) {
+    return (
+      <div>
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile}
+          isLoadingProfile={isLoadingProfile} 
+          isErrorProfile={isErrorProfile} 
+        />
+        <div
+          id="layoutSidenav"
+          className={`d-flex flex-grow-1 ${
+            isSidebarOpen ? "" : "sidenav-closed"
+          }`}
+        >
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={studentProfile} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <p>Error loading data: {pageError?.message || 'Unknown error'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for empty data after loading and no errors
+  if (!studentProfile || !internalMarks || internalMarks.length === 0) {
+    return (
+      <div>
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile} 
+          isLoadingProfile={isLoadingProfile} 
+          isErrorProfile={isErrorProfile}
+        />
+        <div
+          id="layoutSidenav"
+          className={`d-flex flex-grow-1 ${
+            isSidebarOpen ? "" : "sidenav-closed"
+          }`}
+        >
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={studentProfile} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <img src="./images/empty.png" alt="No data" style={{height: '50px'}} />
+              <p>No internal marks data found or profile is missing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const marksData = internalMarks.markDetails || [];
 
   return (
     <div>
-      <Navbar toggleSidebar={toggleSidebar} />
+      <Navbar 
+        toggleSidebar={toggleSidebar} 
+        studentProfile={studentProfile} 
+        isLoadingProfile={isLoadingProfile} 
+        isErrorProfile={isErrorProfile}
+      />
       <div
         id="layoutSidenav"
         className={`d-flex flex-grow-1 ${
@@ -93,7 +173,7 @@ const InternalMarks = () => {
                     description: mark.description,
                     marks: mark.marks,
                   }))}
-                  isLoading={!internalMarks}
+                  isLoading={isLoadingMarks}
                 />
               </div>
             </div>

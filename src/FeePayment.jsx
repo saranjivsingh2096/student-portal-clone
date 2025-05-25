@@ -17,26 +17,53 @@ const FeePayment = () => {
     }
   }, [isSidebarOpen]);
 
-  const { data: studentProfile } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`
+  const {
+    data: studentProfile,
+    isLoading: isLoadingProfile,
+    isError: isErrorProfile,
+    error: errorProfile,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/student-profile`,
+    ['studentProfile']
   );
 
-  const { data: feeDetailsData } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/fee-details`
+  const {
+    data: feeDetailsData,
+    isLoading: isLoadingFeeDetails,
+    isError: isErrorFeeDetails,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/fee-details`,
+    ['feeDetails']
   );
-  const { data: transactionLogData } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/transaction-log-data`
+
+  const {
+    data: transactionLogData,
+    isLoading: isLoadingTransactionLog,
+    isError: isErrorTransactionLog,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/transaction-log-data`,
+    ['transactionLog']
   );
+
+  const unpaidFees = (!isLoadingFeeDetails && !isErrorFeeDetails && feeDetailsData && Array.isArray(feeDetailsData.allFees))
+    ? feeDetailsData.allFees.filter(fee => !fee.paid)
+    : [];
+
+  const currentTransactionLog = (!isLoadingTransactionLog && !isErrorTransactionLog && transactionLogData && Array.isArray(transactionLogData.transactions))
+    ? transactionLogData.transactions
+    : [];
 
   useEffect(() => {
     loadScript("https://checkout.razorpay.com/v1/checkout.js");
-  });
+  }, []);
 
   useEffect(() => {
-    if (feeDetailsData.length > 0) {
+    if (!isLoadingFeeDetails && !isErrorFeeDetails && unpaidFees.length > 0) {
       setIsPayButtonEnabled(true);
+    } else {
+      setIsPayButtonEnabled(false);
     }
-  }, [feeDetailsData]);
+  }, [unpaidFees, isLoadingFeeDetails, isErrorFeeDetails]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -168,25 +195,38 @@ const FeePayment = () => {
     { title: "Payment Gateway", key: "paymentGateway", width: "12%" },
   ];
 
-  if (!studentProfile || !feeDetailsData || !transactionLogData) {
+  if (isLoadingProfile) {
     return (
       <div>
-        <Navbar toggleSidebar={toggleSidebar} />
-        <div
-          id="layoutSidenav"
-          className={`d-flex flex-grow-1 ${
-            isSidebarOpen ? "" : "sidenav-closed"
-          }`}
-        >
+        <Navbar toggleSidebar={toggleSidebar} studentProfile={undefined} isLoadingProfile={true} isErrorProfile={false} />
+        <div id="layoutSidenav" className={`d-flex flex-grow-1 ${isSidebarOpen ? "" : "sidenav-closed"}`}>
           <div id="layoutSidenav_nav">
-            <SidebarMenu studentProfile={studentProfile} />
+            <SidebarMenu studentProfile={undefined} />
           </div>
           <div id="layoutSidenav_content" className="flex-grow-1">
             <div className="container mt-4">
               <div>
-                <img src="./images/wait.gif" alt="Loading..." />
-                <p>Please wait...</p>
+                <img src="./images/wait.gif" alt="Loading Profile..." />
+                <p>Loading Profile...</p>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isErrorProfile || (!isLoadingProfile && !studentProfile)) {
+    return (
+      <div>
+        <Navbar toggleSidebar={toggleSidebar} studentProfile={undefined} isLoadingProfile={false} isErrorProfile={true} />
+        <div id="layoutSidenav" className={`d-flex flex-grow-1 ${isSidebarOpen ? "" : "sidenav-closed"}`}>
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={undefined} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <p>Error loading student profile: {errorProfile?.message || 'Essential data could not be loaded.'}</p>
             </div>
           </div>
         </div>
@@ -196,89 +236,61 @@ const FeePayment = () => {
 
   return (
     <div>
-      <Navbar toggleSidebar={toggleSidebar} />
-      <div
-        id="layoutSidenav"
-        className={`d-flex flex-grow-1 ${
-          isSidebarOpen ? "" : "sidenav-closed"
-        }`}
-      >
+      <Navbar toggleSidebar={toggleSidebar} studentProfile={studentProfile} isLoadingProfile={isLoadingProfile} isErrorProfile={isErrorProfile} />
+      <div id="layoutSidenav" className={`d-flex flex-grow-1 ${isSidebarOpen ? "" : "sidenav-closed"}`}>
         <div id="layoutSidenav_nav">
           <SidebarMenu studentProfile={studentProfile} />
         </div>
-        {/* Main Content */}
         <div id="layoutSidenav_content" className="flex-grow-1">
           <div className="container mt-4">
             <div className="card mb-4">
-              <div className="card-header bg-custom text-white">
-                Fee Payment
-              </div>
+              <div className="card-header bg-custom text-white">Fee Payment</div>
               <div align="center">
                 <br />
-                <button
-                  type="button"
-                  className="btn btn-custom rounded-pill lift mr-2"
-                  onClick={() => handleTableSwitch("feeDetails")}
-                >
-                  Fee Details
+                <button type="button" className="btn btn-custom rounded-pill lift mr-2" onClick={() => handleTableSwitch("feeDetails")}>
+                  Fee Details (Pending Payments)
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-custom rounded-pill lift"
-                  onClick={() => handleTableSwitch("transactionLog")}
-                >
+                <button type="button" className="btn btn-custom rounded-pill lift" onClick={() => handleTableSwitch("transactionLog")}>
                   Payment Transaction Log
                 </button>
               </div>
               <div>&nbsp;</div>
             </div>
 
-            {/* Render Fee Details Table */}
             {visibleTable === "feeDetails" && (
               <div className="card mb-4">
-                <div className="card-header bg-custom text-white">
-                  Fee Details
-                </div>
+                <div className="card-header bg-custom text-white">Fee Details (Pending Payments)</div>
                 <div className="table-responsive">
                   <Table
                     columns={feeDetailsColumns}
-                    data={feeDetailsData}
+                    data={unpaidFees}
                     isLoading={false}
                     isTotalRow={false}
                   />
-                  <div className="mt-3 ml-4" style={{ fontSize: "10px" }}>
-                    <font color="blue">* Service charges as applicable</font>
-                  </div>
-
+                  <div className="mt-3 ml-4" style={{ fontSize: "10px" }}><font color="blue">* Service charges as applicable</font></div>
                   <div align="center">
                     <button
                       type="submit"
-                      className={`btn btn-custom rounded-pill mx-auto mb-4 ${
-                        isPayButtonEnabled ? "lift" : ""
-                      }`}
+                      className={`btn btn-custom rounded-pill mx-auto mb-4 ${isPayButtonEnabled ? "lift" : ""}`}
                       id="paybutton"
                       style={{ backgroundColor: "#337ab7" }}
                       disabled={!isPayButtonEnabled}
                       onClick={openRazorpay}
                     >
-                      Proceed to payment
-                      <i className="fa fa-long-arrow-right ml-2"></i>
+                      Proceed to payment <i className="fa fa-long-arrow-right ml-2"></i>
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Render Transaction Log Table */}
             {visibleTable === "transactionLog" && (
               <div className="card mb-4">
-                <div className="card-header bg-custom text-white">
-                  Payment Transaction Log
-                </div>
+                <div className="card-header bg-custom text-white">Payment Transaction Log</div>
                 <div className="table-responsive">
                   <Table
                     columns={transactionLogColumns}
-                    data={transactionLogData}
+                    data={currentTransactionLog}
                     isLoading={false}
                     isTotalRow={false}
                   />

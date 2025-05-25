@@ -41,23 +41,40 @@ const Attendance = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const { data: AttendanceData } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/attendance-data`
+  const {
+    data: attendanceData,
+    isLoading: isLoadingAttendance,
+    isError: isErrorAttendance,
+    error: errorAttendance,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/attendance-data`,
+    ['attendanceData']
   );
 
-  const { data: studentProfile } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`
+  const {
+    data: studentProfile,
+    isLoading: isLoadingProfile,
+    isError: isErrorProfile,
+    error: errorProfile,
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/student-profile`,
+    ['studentProfile']
   );
 
-  if (
-    !AttendanceData ||
-    !AttendanceData.courseWiseAttendance ||
-    !AttendanceData.cumulativeAttendance ||
-    !studentProfile
-  ) {
+  // Overall loading and error states for page content
+  const pageIsLoading = isLoadingAttendance || isLoadingProfile;
+  const pageIsError = isErrorAttendance || isErrorProfile;
+  const pageError = errorAttendance || errorProfile;
+
+  if (pageIsLoading) {
     return (
       <div>
-        <Navbar toggleSidebar={toggleSidebar} />
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile} 
+          isLoadingProfile={isLoadingProfile} 
+          isErrorProfile={isErrorProfile} 
+        />
         <div
           id="layoutSidenav"
           className={`d-flex flex-grow-1 ${
@@ -67,7 +84,6 @@ const Attendance = () => {
           <div id="layoutSidenav_nav">
             <SidebarMenu studentProfile={studentProfile} />
           </div>
-
           <div id="layoutSidenav_content" className="flex-grow-1">
             <div className="container mt-4">
               <div>
@@ -81,14 +97,77 @@ const Attendance = () => {
     );
   }
 
+  if (pageIsError) {
+    return (
+      <div>
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile} 
+          isLoadingProfile={isLoadingProfile} 
+          isErrorProfile={isErrorProfile} 
+        />
+        <div
+          id="layoutSidenav"
+          className={`d-flex flex-grow-1 ${
+            isSidebarOpen ? "" : "sidenav-closed"
+          }`}
+        >
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={studentProfile} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <p>Error loading data: {pageError?.message || 'Unknown error'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for empty or incomplete data after loading and no errors
+  if (
+    !attendanceData ||
+    !attendanceData.courseWiseAttendance ||
+    !attendanceData.cumulativeAttendance ||
+    !studentProfile
+  ) {
+    return (
+      <div>
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile} 
+          isLoadingProfile={isLoadingProfile} 
+          isErrorProfile={isErrorProfile}
+        />
+        <div
+          id="layoutSidenav"
+          className={`d-flex flex-grow-1 ${
+            isSidebarOpen ? "" : "sidenav-closed"
+          }`}
+        >
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={studentProfile} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <img src="./images/empty.png" alt="No data" style={{height: '50px'}} />
+              <p>Attendance data or profile is incomplete or unavailable.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const {
     courseWiseAttendance,
     cumulativeAttendance,
     attendancePeriodStartDate,
     attendancePeriodEndDate,
-  } = AttendanceData || {};
+  } = attendanceData;
 
-  // Calculate Attendance Percentage for each course
+  // Calculate Attendance Percentage for each course for the chart
   const chartData = {
     labels: courseWiseAttendance.map((course) => course.code),
     datasets: [
@@ -162,12 +241,11 @@ const Attendance = () => {
   // Adjusted attended hours considering OD/ML
   const adjustedAttendedHours = totalAttendedHours + totalODMLHours;
 
-  // Calculate present and absent percentages
+  // Calculate present and absent percentages for Donut Chart
   const presentPercentage =
     totalMaxHours > 0
       ? Math.round((adjustedAttendedHours / totalMaxHours) * 100)
       : 0;
-
   const absentPercentage = 100 - presentPercentage;
 
   // Updated Donut Chart Data
@@ -201,9 +279,83 @@ const Attendance = () => {
     cutout: 73, // This will reduce the width of the donut
   };
 
+  // Calculate overall values for total row
+  const overallAveragePercentageValue = totalMaxHours > 0 ? (totalAttendedHours / totalMaxHours) * 100 : 0;
+  const sumOdMlPercentageValue = courseWiseAttendance.reduce((sum, course) => sum + (course.odMlPercentage || 0), 0);
+  // User's formula for overall total percentage: AverageAtt% * (1 + SumOdML%/100)
+  const overallTotalPercentageValue = overallAveragePercentageValue * (1 + sumOdMlPercentageValue / 100);
+
+  const courseWiseColumns = [
+    { title: "Code", key: "code", width: "10%" },
+    { title: "Description", key: "description", width: "32%" },
+    {
+      title: "Max. hours",
+      key: "maxHours",
+      width: "8%",
+      totalValue: totalMaxHours,
+    },
+    {
+      title: "Att. hours",
+      key: "attendedHours",
+      width: "8%",
+      totalValue: totalAttendedHours,
+    },
+    {
+      title: "Absent hours",
+      key: "absentHours",
+      width: "8%",
+      totalValue: totalMaxHours - totalAttendedHours,
+    },
+    {
+      title: "Average %",
+      key: "averagePercentage",
+      width: "8%",
+      totalValue: `${overallAveragePercentageValue.toFixed(2)}%`,
+    },
+    {
+      title: "OD/ML %", // Changed from "OD/ML Percentage" to match Table example style
+      key: "odMlPercentage",
+      width: "8%",
+      totalValue: `${sumOdMlPercentageValue.toFixed(2)}%`,
+    },
+    {
+      title: "Total %", // Changed from "Total Percentage"
+      key: "totalPercentage",
+      width: "8%",
+      totalValue: `${overallTotalPercentageValue.toFixed(2)}%`,
+    },
+  ];
+
+  const courseWiseTableData = courseWiseAttendance.map((course) => {
+    const maxHours = course.maxHours || 0;
+    const attendedHours = course.attendedHours || 0;
+    const odMlPercentage = course.odMlPercentage || 0;
+    const absentHours = maxHours - attendedHours;
+    const averagePercentage = maxHours > 0 ? (attendedHours / maxHours) * 100 : 0;
+    // User's formula for per-row total percentage: AverageAtt% * (1 + ODML%/100)
+    const totalPercentage = averagePercentage * (1 + odMlPercentage / 100);
+
+    return {
+      ...course,
+      description: course.description || 'N/A',
+      absentHours: absentHours,
+      averagePercentage: `${averagePercentage.toFixed(2)}%`,
+      odMlPercentage: `${odMlPercentage.toFixed(2)}%`, // Display individual OD/ML %
+      totalPercentage: `${totalPercentage.toFixed(2)}%`,
+      // Ensure original keys used by table are present if not overridden
+      maxHours: maxHours,
+      attendedHours: attendedHours,
+    };
+  });
+
   return (
     <div>
-      <Navbar toggleSidebar={toggleSidebar} />
+      <Navbar 
+        toggleSidebar={toggleSidebar} 
+        studentProfile={studentProfile} 
+        isLoadingProfile={isLoadingProfile} 
+        isErrorProfile={isErrorProfile}
+      />
       <div
         id="layoutSidenav"
         className={`d-flex flex-grow-1 ${
@@ -258,99 +410,10 @@ const Attendance = () => {
               </div>
               <div className="card-body p-0">
                 <Table
-                  columns={[
-                    { title: "Code", key: "code", width: "10%" },
-                    { title: "Description", key: "description", width: "32%" },
-                    {
-                      title: "Max. hours",
-                      key: "maxHours",
-                      width: "8%",
-                      totalValue: courseWiseAttendance.reduce(
-                        (sum, course) => sum + course.maxHours,
-                        0
-                      ),
-                    },
-                    {
-                      title: "Att. hours",
-                      key: "attendedHours",
-                      width: "8%",
-                      totalValue: courseWiseAttendance.reduce(
-                        (sum, course) => sum + course.attendedHours,
-                        0
-                      ),
-                    },
-                    {
-                      title: "Absent hours",
-                      key: "absentHours",
-                      width: "8%",
-                      totalValue: courseWiseAttendance.reduce(
-                        (sum, course) =>
-                          sum + (course.maxHours - course.attendedHours),
-                        0
-                      ),
-                    },
-                    {
-                      title: "Average %",
-                      key: "averagePercentage",
-                      width: "8%",
-                      totalValue: (
-                        (courseWiseAttendance.reduce(
-                          (sum, course) => sum + course.attendedHours,
-                          0
-                        ) /
-                          courseWiseAttendance.reduce(
-                            (sum, course) => sum + course.maxHours,
-                            0
-                          )) *
-                        100
-                      ).toFixed(2),
-                    },
-                    {
-                      title: "OD/ML Percentage",
-                      key: "odMlPercentage",
-                      width: "8%",
-                      totalValue: courseWiseAttendance
-                        .reduce((sum, course) => sum + course.odMlPercentage, 0)
-                        .toFixed(2),
-                    },
-                    {
-                      title: "Total Percentage",
-                      key: "totalPercentage",
-                      width: "8%",
-                      totalValue: (
-                        (courseWiseAttendance.reduce(
-                          (sum, course) => sum + course.attendedHours,
-                          0
-                        ) /
-                          courseWiseAttendance.reduce(
-                            (sum, course) => sum + course.maxHours,
-                            0
-                          )) *
-                        100 *
-                        (1 +
-                          courseWiseAttendance.reduce(
-                            (sum, course) => sum + course.odMlPercentage,
-                            0
-                          ) /
-                            100)
-                      ).toFixed(2),
-                    },
-                  ]}
-                  data={courseWiseAttendance.map((course) => ({
-                    ...course,
-                    absentHours: course.maxHours - course.attendedHours,
-                    averagePercentage: (
-                      (course.attendedHours / course.maxHours) *
-                      100
-                    ).toFixed(2),
-                    totalPercentage: (
-                      (course.attendedHours / course.maxHours) *
-                      100 *
-                      (1 + course.odMlPercentage / 100)
-                    ).toFixed(2),
-                  }))}
-                  isLoading={!AttendanceData}
-                  isTotalRow
+                  columns={courseWiseColumns}
+                  data={courseWiseTableData}
+                  isLoading={isLoadingAttendance}
+                  isTotalRow={true}
                 />
               </div>
             </div>
@@ -369,8 +432,8 @@ const Attendance = () => {
                     { title: "OD (Absent)", key: "odAbsent", width: "15%" },
                     { title: "ML", key: "ml", width: "15%" },
                   ]}
-                  data={cumulativeAttendance}
-                  isLoading={!cumulativeAttendance}
+                  data={cumulativeAttendance || []}
+                  isLoading={isLoadingAttendance}
                 />
               </div>
             </div>

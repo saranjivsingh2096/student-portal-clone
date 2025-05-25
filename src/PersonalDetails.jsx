@@ -19,14 +19,25 @@ const PersonalDetails = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const { data: studentProfile } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`
+  const { 
+    data: studentProfile, 
+    isLoading, 
+    isError, 
+    error 
+  } = useFetchData(
+    `${process.env.REACT_APP_API_URL}/student-profile`,
+    ['studentProfile']
   );
 
-  if (!studentProfile || studentProfile.length === 0) {
+  if (isLoading) {
     return (
       <div>
-        <Navbar toggleSidebar={toggleSidebar} />
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={undefined} 
+          isLoadingProfile={true} 
+          isErrorProfile={false} 
+        />
         <div
           id="layoutSidenav"
           className={`d-flex flex-grow-1 ${
@@ -34,9 +45,8 @@ const PersonalDetails = () => {
           }`}
         >
           <div id="layoutSidenav_nav">
-            <SidebarMenu studentProfile={studentProfile} />
+            <SidebarMenu studentProfile={undefined} />
           </div>
-
           <div id="layoutSidenav_content" className="flex-grow-1">
             <div className="container mt-4">
               <div>
@@ -50,9 +60,71 @@ const PersonalDetails = () => {
     );
   }
 
+  if (isError) {
+    return (
+      <div>
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={undefined} 
+          isLoadingProfile={false} 
+          isErrorProfile={true} 
+        />
+        <div
+          id="layoutSidenav"
+          className={`d-flex flex-grow-1 ${
+            isSidebarOpen ? "" : "sidenav-closed"
+          }`}
+        >
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={undefined} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <p>Error loading profile: {error?.message || 'Unknown error'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!studentProfile || (Array.isArray(studentProfile) && studentProfile.length === 0 && Object.keys(studentProfile).length === 0 )) {
+    return (
+      <div>
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          studentProfile={studentProfile}
+          isLoadingProfile={false} 
+          isErrorProfile={false}
+        />
+        <div
+          id="layoutSidenav"
+          className={`d-flex flex-grow-1 ${
+            isSidebarOpen ? "" : "sidenav-closed"
+          }`}
+        >
+          <div id="layoutSidenav_nav">
+            <SidebarMenu studentProfile={studentProfile} />
+          </div>
+          <div id="layoutSidenav_content" className="flex-grow-1">
+            <div className="container mt-4 text-center">
+              <img src="./images/empty.png" alt="No data" style={{height: '50px'}} />
+              <p>No profile data found.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Navbar toggleSidebar={toggleSidebar} />
+      <Navbar 
+        toggleSidebar={toggleSidebar} 
+        studentProfile={studentProfile} 
+        isLoadingProfile={isLoading} 
+        isErrorProfile={isError}
+      />
       <div
         id="layoutSidenav"
         className={`d-flex flex-grow-1 ${

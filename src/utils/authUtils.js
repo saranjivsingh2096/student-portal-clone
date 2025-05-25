@@ -1,24 +1,32 @@
 export const handleLogout = async (navigate) => {
   const token = localStorage.getItem("authToken");
 
-  try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  // Client-side cleanup first
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("user");
+  
+  // Attempt to navigate to login page immediately
+  // This ensures the user is redirected even if the backend call has issues.
+  window.location.reload();
 
-    if (response.ok) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      navigate("/login");
-    } else {
-      console.error("Logout failed.");
+  // Then, attempt to notify the backend (best effort)
+  if (token) { // Only attempt if a token existed
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        // Log if the backend logout failed, but client is already logged out
+        console.warn("Backend logout request failed. Status:", response.status);
+      }
+    } catch (error) {
+      console.warn("Error during backend logout request:", error);
     }
-  } catch (error) {
-    console.error("Error during logout:", error);
   }
 };
 

@@ -12,7 +12,8 @@ import Dashboard from "./Dashboard";
 import PersonalDetails from "./PersonalDetails";
 import Attendance from "./Attendance";
 import FeePayment from "./FeePayment";
-import InternalMarks from "./InternalMarks";
+import InternalMarks from "./InternalMarks";  
+import Grade from "./Grade";
 import WIP from "./WIP";
 
 function App() {
@@ -94,6 +95,14 @@ function App() {
           }
         />
         <Route
+          path="/internal-marks"
+          element={
+            <ProtectedRoute>
+              <InternalMarks />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/wip"
           element={
             <ProtectedRoute>
@@ -109,11 +118,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
         <Route
-          path="/internal-marks"
+          path="/grade"
           element={
             <ProtectedRoute>
-              <InternalMarks />
+              <Grade />
             </ProtectedRoute>
           }
         />
