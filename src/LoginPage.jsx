@@ -14,7 +14,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLoginChange = (e) => setLogin(e.target.value);
+  const handleLoginChange = (e) => setLogin(e.target.value.toLowerCase());
   const handlePasswdChange = (e) => setPasswd(e.target.value);
 
   const handleSubmit = async (e) => {
