@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Navbar from "./components/Navbar";
 import SidebarMenu from "./components/SidebarMenu";
 import Table from "./components/Table";
@@ -45,9 +45,11 @@ const FeePayment = () => {
     ['transactionLog']
   );
 
-  const unpaidFees = (!isLoadingFeeDetails && !isErrorFeeDetails && feeDetailsData && Array.isArray(feeDetailsData.allFees))
-    ? feeDetailsData.allFees.filter(fee => !fee.paid)
-    : [];
+  const unpaidFees = useMemo(() => {
+    return (!isLoadingFeeDetails && !isErrorFeeDetails && feeDetailsData && Array.isArray(feeDetailsData.allFees))
+      ? feeDetailsData.allFees.filter(fee => !fee.paid)
+      : [];
+  }, [feeDetailsData, isLoadingFeeDetails, isErrorFeeDetails]);
 
   const currentTransactionLog = (!isLoadingTransactionLog && !isErrorTransactionLog && transactionLogData && Array.isArray(transactionLogData.transactions))
     ? transactionLogData.transactions
