@@ -57,7 +57,7 @@ const Grade = () => {
     isError: isErrorProfile, 
     error: errorProfile 
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`,
+    `${process.env.REACT_APP_API_URL}/student/profile`,
     ['studentProfile']
   );
 
@@ -68,7 +68,7 @@ const Grade = () => {
     isError: isErrorGradesData,
     error: errorGradesData
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/grade-details`, 
+    `${process.env.REACT_APP_API_URL}/student/grade-details`, 
     ['studentGrades'] 
   );
 
@@ -123,7 +123,7 @@ const Grade = () => {
     });
 
     const cgpaValue = totalSemesterCreditsSum === 0 ? "0.00" : (weightedSgpaSum / totalSemesterCreditsSum).toFixed(2);
-    return { label: "Total CGPA", value: cgpaValue };
+    return { label: "CGPA", value: cgpaValue };
   }, [processedSemestersData]);
 
   // Dynamic Credit Calculation
@@ -144,8 +144,8 @@ const Grade = () => {
     { title: "Value", key: "value", width: "20%" },
   ];
   const creditDetailsData = useMemo(() => [
-    { description: "Total Credits Registered", value: totalCreditsRegistered },
-    { description: "Total Credits Earned", value: totalCreditsEarned },
+    { description: "Credits Registered", value: totalCreditsRegistered },
+    { description: "Credits Earned", value: totalCreditsEarned },
   ], [totalCreditsRegistered, totalCreditsEarned]);
 
   // Helper to render summary rows (SGPA/CGPA)

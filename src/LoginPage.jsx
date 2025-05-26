@@ -51,19 +51,26 @@ const LoginPage = () => {
 
     if (isValid) {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
+        // Process the login value
+        let processedUsername = login.toLowerCase();
+        if (processedUsername.includes('@')) {
+          processedUsername = processedUsername.split('@')[0];
+        }
+        processedUsername = processedUsername.substring(0, 6);
+
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username: login, password: passwd }),
+          body: JSON.stringify({ username: processedUsername, password: passwd }),
         });
 
         const data = await response.json();
 
         if (response.status === 200) {
           localStorage.setItem("authToken", data.authToken);
-          localStorage.setItem("user", login);
+          localStorage.setItem("user", processedUsername);
           navigate("/dashboard");
         } else {
           setErrorMessage(data.message || "Invalid credentials or captcha.");

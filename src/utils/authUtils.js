@@ -12,7 +12,7 @@ export const handleLogout = async (navigate) => {
   // Then, attempt to notify the backend (best effort)
   if (token) { // Only attempt if a token existed
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,13 +32,20 @@ export const handleLogout = async (navigate) => {
 
 export const validateToken = async () => {
   const authToken = localStorage.getItem("authToken");
-  if (!authToken) return false;
+  const user = localStorage.getItem("user");
+
+  if (!authToken || !user) return false;
 
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/validate-token`,
+      `${process.env.REACT_APP_API_URL}/auth/validate-token`,
       {
-        headers: { Authorization: `Bearer ${authToken}` },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ username: user }),
       }
     );
     return response.status === 200;

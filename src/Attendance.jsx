@@ -47,7 +47,7 @@ const Attendance = () => {
     isError: isErrorAttendance,
     error: errorAttendance,
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/attendance-data`,
+    `${process.env.REACT_APP_API_URL}/student/attendance-data`,
     ['attendanceData']
   );
 
@@ -56,8 +56,8 @@ const Attendance = () => {
     isLoading: isLoadingProfile,
     isError: isErrorProfile,
     error: errorProfile,
-  } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`,
+  } = useFetchData(                                                                                     
+    `${process.env.REACT_APP_API_URL}/student/profile`,
     ['studentProfile']
   );
 
@@ -127,10 +127,10 @@ const Attendance = () => {
 
   // Check for empty or incomplete data after loading and no errors
   if (
-    !attendanceData ||
-    !attendanceData.courseWiseAttendance ||
-    !attendanceData.cumulativeAttendance ||
-    !studentProfile
+    !studentProfile ||
+    !attendanceData || // Ensure attendanceData itself is loaded
+    !Array.isArray(attendanceData.courseWiseAttendance) ||
+    !(attendanceData.cumulativeAttendance && Array.isArray(attendanceData.cumulativeAttendance.cumulativeAttendance))
   ) {
     return (
       <div>
@@ -162,10 +162,16 @@ const Attendance = () => {
 
   const {
     courseWiseAttendance,
-    cumulativeAttendance,
+    cumulativeAttendance, // This will be the object { cumulativeAttendance: [...] } or {"percentage":"N/A"}
     attendancePeriodStartDate,
     attendancePeriodEndDate,
   } = attendanceData;
+
+  // Extract the actual array for the cumulative attendance table
+  const cumulativeAttendanceArray = 
+    (cumulativeAttendance && Array.isArray(cumulativeAttendance.cumulativeAttendance))
+    ? cumulativeAttendance.cumulativeAttendance
+    : [];
 
   // Calculate Attendance Percentage for each course for the chart
   const chartData = {
@@ -196,8 +202,8 @@ const Attendance = () => {
       x: {
         ticks: {
           autoSkip: false,
-          maxRotation: 20,
-          minRotation: 20,
+          maxRotation: 45,
+          minRotation: 45,
         },
       },
       y: {
@@ -432,7 +438,7 @@ const Attendance = () => {
                     { title: "OD (Absent)", key: "odAbsent", width: "15%" },
                     { title: "ML", key: "ml", width: "15%" },
                   ]}
-                  data={cumulativeAttendance || []}
+                  data={cumulativeAttendanceArray}
                   isLoading={isLoadingAttendance}
                 />
               </div>

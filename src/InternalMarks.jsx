@@ -25,7 +25,7 @@ const InternalMarks = () => {
     isError: isErrorProfile,
     error: errorProfile,
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`,
+    `${process.env.REACT_APP_API_URL}/student/profile`,
     ['studentProfile']
   );
 
@@ -35,7 +35,7 @@ const InternalMarks = () => {
     isError: isErrorMarks,
     error: errorMarks,
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/internal-marks`,
+    `${process.env.REACT_APP_API_URL}/student/internal-marks`,
     ['internalMarks']
   );
 

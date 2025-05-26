@@ -23,7 +23,7 @@ const FeePayment = () => {
     isError: isErrorProfile,
     error: errorProfile,
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`,
+    `${process.env.REACT_APP_API_URL}/student/profile`,
     ['studentProfile']
   );
 
@@ -32,7 +32,7 @@ const FeePayment = () => {
     isLoading: isLoadingFeeDetails,
     isError: isErrorFeeDetails,
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/fee-details`,
+    `${process.env.REACT_APP_API_URL}/student/fee-details`,
     ['feeDetails']
   );
 
@@ -41,7 +41,7 @@ const FeePayment = () => {
     isLoading: isLoadingTransactionLog,
     isError: isErrorTransactionLog,
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/transaction-log-data`,
+    `${process.env.REACT_APP_API_URL}/payment/transaction-log-data`,
     ['transactionLog']
   );
 
@@ -86,7 +86,7 @@ const FeePayment = () => {
   const openRazorpay = async () => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/create-order`,
+        `${process.env.REACT_APP_API_URL}/payment/create-order`,
         {
           method: "POST",
           headers: {
@@ -112,7 +112,7 @@ const FeePayment = () => {
           const paymentVerification = await fetch(
             `${
               process.env.REACT_APP_API_URL
-            }/verify-payment?user=${localStorage.getItem("user")}&studentId=${
+            }/payment/verify-payment?user=${localStorage.getItem("user")}&studentId=${
               studentProfile.studentId
             }`,
             {
@@ -248,7 +248,7 @@ const FeePayment = () => {
               <div align="center">
                 <br />
                 <button type="button" className="btn btn-custom rounded-pill lift mr-2" onClick={() => handleTableSwitch("feeDetails")}>
-                  Fee Details (Pending Payments)
+                  Pending Payments
                 </button>
                 <button type="button" className="btn btn-custom rounded-pill lift" onClick={() => handleTableSwitch("transactionLog")}>
                   Payment Transaction Log
@@ -259,7 +259,7 @@ const FeePayment = () => {
 
             {visibleTable === "feeDetails" && (
               <div className="card mb-4">
-                <div className="card-header bg-custom text-white">Fee Details (Pending Payments)</div>
+                <div className="card-header bg-custom text-white">Fee Details</div>
                 <div className="table-responsive">
                   <Table
                     columns={feeDetailsColumns}

@@ -25,7 +25,7 @@ const Dashboard = () => {
     isError, 
     error 
   } = useFetchData(
-    `${process.env.REACT_APP_API_URL}/student-profile`,
+    `${process.env.REACT_APP_API_URL}/student/profile`,
     ['studentProfile']
   );
 
