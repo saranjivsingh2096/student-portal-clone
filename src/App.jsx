@@ -18,8 +18,7 @@ import WIP from "./WIP";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const checkAuthentication = async () => {
       const token = localStorage.getItem("authToken");
@@ -27,13 +26,11 @@ function App() {
       
       if (!token || !user) {
         setIsAuthenticated(false);
-        setIsLoading(false);
         return;
       }
 
       const valid = await validateToken();
       setIsAuthenticated(valid);
-      setIsLoading(false);
     };
 
     checkAuthentication();
@@ -48,15 +45,6 @@ function App() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-
-  if (isLoading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <img src="./images/wait.gif" alt="Loading..." />
-        <p>Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <Router>
