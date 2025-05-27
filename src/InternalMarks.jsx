@@ -6,6 +6,8 @@ import Table from "./components/Table";
 
 const InternalMarks = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(null);
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -105,8 +107,9 @@ const InternalMarks = () => {
                   <Table
                     columns={[
                       { title: "Code", key: "code", width: "15%" },
-                      { title: "Description", key: "description", width: "15%" },
+                      { title: "Description", key: "description", width: "30%" },
                       { title: "Mark / Max. Mark", key: "marks", width: "15%" },
+                      { title: "", key: "viewDetails", width: "5%" },
                     ]}
                     data={[]}
                     isLoading={false}
@@ -149,8 +152,9 @@ const InternalMarks = () => {
                   <Table
                     columns={[
                       { title: "Code", key: "code", width: "15%" },
-                      { title: "Description", key: "description", width: "15%" },
+                      { title: "Description", key: "description", width: "30%" },
                       { title: "Mark / Max. Mark", key: "marks", width: "15%" },
+                      { title: "", key: "viewDetails", width: "5%" },
                     ]}
                     data={[]}
                     isLoading={false}
@@ -165,6 +169,19 @@ const InternalMarks = () => {
   }
 
   const marksData = internalMarks.markDetails || [];
+
+  // Helper to calculate total and max marks for a subject (from assessments)
+  const getTotalMarks = (assessments) => {
+    if (!Array.isArray(assessments)) return { total: 0, max: 0 };
+    return assessments.reduce(
+      (acc, a) => {
+        // marks is a string like "5.00 / 5.00"
+        const [mark, max] = (a.marks || "0/0").split("/").map(s => parseFloat(s.trim()) || 0);
+        return { total: acc.total + mark, max: acc.max + max };
+      },
+      { total: 0, max: 0 }
+    );
+  };
 
   return (
     <div>
@@ -194,18 +211,93 @@ const InternalMarks = () => {
                 <Table
                   columns={[
                     { title: "Code", key: "code", width: "15%" },
-                    { title: "Description", key: "description", width: "15%" },
+                    { title: "Description", key: "description", width: "30%" },
                     { title: "Mark / Max. Mark", key: "marks", width: "15%" },
+                    { title: "", key: "viewDetails", width: "5%" },
                   ]}
-                  data={marksData.map((mark) => ({
-                    code: mark.code,
-                    description: mark.description,
-                    marks: mark.marks,
-                  }))}
+                  data={marksData.map((mark) => {
+                    const { total, max } = getTotalMarks(mark.assessments);
+                    return {
+                      code: mark.code,
+                      description: mark.description,
+                      marks: `${total.toFixed(2)} / ${max.toFixed(2)}`,
+                      viewDetails: (
+                        <button
+                          className="btn btn-sm btn-custom lift"
+                          onClick={() => {
+                            setSelectedSubject(mark);
+                            setShowModal(true);
+                          }}
+                        >
+                          <i className="fa fa-eye px-1 py-1"></i> View Details
+                        </button>
+                      ),
+                    };
+                  })}
                   isLoading={isLoadingMarks}
                 />
               </div>
             </div>
+
+            {/* Modal for subject details */}
+            {showModal && selectedSubject && (
+              <div
+                className="modal fade show"
+                tabIndex="-1"
+                style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+                aria-modal="true"
+                role="dialog"
+              >
+                <div className="modal-dialog modal-lg" role="document">
+                  <div className="modal-content">
+                    <div className="modal-header bg-custom text-white">
+                      <h5 className="modal-title text-white">
+                        {selectedSubject.code} - {selectedSubject.description}
+                      </h5>
+                      <button
+                        type="button"
+                        className="close text-white"
+                        onClick={() => setShowModal(false)}
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div className="modal-body">
+                      <div className="table-responsive table-billing-history">
+                        <table className="table mb-0">
+                          <thead>
+                            <tr>
+                              <th width="25%">Entered on</th>
+                              <th width="25%">Component</th>
+                              <th width="30%">Mark / Max. Mark</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedSubject.assessments && selectedSubject.assessments.map((a, idx) => (
+                              <tr key={idx}>
+                                <td>{a.date || "-"}</td>
+                                <td>{a.component || "-"}</td>
+                                <td>{a.marks || "-"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div className="modal-footer">
+                      <button
+                        className="btn btn-dark lift"
+                        type="button"
+                        onClick={() => setShowModal(false)}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
