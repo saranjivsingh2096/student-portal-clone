@@ -1,22 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { validateToken } from "../utils/authUtils";
 
-export const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-
-  useEffect(() => {
-    const checkToken = async () => {
-      const isValid = await validateToken();
-      setIsAuthenticated(isValid);
-    };
-
-    checkToken();
-  }, []);
-
+export const ProtectedRoute = ({ children, isAuthenticated }) => {
   if (isAuthenticated === null) {
-    return;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <img src="./images/wait.gif" alt="Loading..." />
+        <p>Loading...</p>
+      </div>
+    );
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };

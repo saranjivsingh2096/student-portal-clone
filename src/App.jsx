@@ -22,16 +22,40 @@ function App() {
 
   useEffect(() => {
     const checkAuthentication = async () => {
+      const token = localStorage.getItem("authToken");
+      const user = localStorage.getItem("user");
+      
+      if (!token || !user) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
+      }
+
       const valid = await validateToken();
       setIsAuthenticated(valid);
       setIsLoading(false);
     };
 
     checkAuthentication();
+
+    // Add event listener for storage changes
+    const handleStorageChange = (e) => {
+      if (e.key === 'authToken' || e.key === 'user') {
+        checkAuthentication();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   if (isLoading) {
-    return;
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <img src="./images/wait.gif" alt="Loading..." />
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   return (
@@ -44,14 +68,14 @@ function App() {
             isAuthenticated ? (
               <Navigate to="/dashboard" replace />
             ) : (
-              <LoginPage />
+              <LoginPage setIsAuthenticated={setIsAuthenticated} />
             )
           }
         />
 
         {/* Default Route */}
         <Route
-          path="*"
+          path="/"
           element={
             isAuthenticated ? (
               <Navigate to="/dashboard" replace />
@@ -65,7 +89,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Dashboard />
             </ProtectedRoute>
           }
@@ -73,7 +97,7 @@ function App() {
         <Route
           path="/personal-details"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <PersonalDetails />
             </ProtectedRoute>
           }
@@ -81,7 +105,7 @@ function App() {
         <Route
           path="/attendance-details"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Attendance />
             </ProtectedRoute>
           }
@@ -89,7 +113,7 @@ function App() {
         <Route
           path="/fee-payment"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <FeePayment />
             </ProtectedRoute>
           }
@@ -97,7 +121,7 @@ function App() {
         <Route
           path="/internal-marks"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <InternalMarks />
             </ProtectedRoute>
           }
@@ -105,7 +129,7 @@ function App() {
         <Route
           path="/wip"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <WIP />
             </ProtectedRoute>
           }
@@ -113,99 +137,27 @@ function App() {
         <Route
           path="/course-list"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <WIP />
             </ProtectedRoute>
           }
         />
-        
         <Route
           path="/grade"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Grade />
             </ProtectedRoute>
           }
         />
-
         <Route
-          path="/abc-entry"
+          path="*"
           element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/exam-hallticket"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/summer-term-registration"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/scribe-request"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/revaluation-registration"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/transcript"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/name-change"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/community-certificate"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/placement-insight"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/student-feedback"
-          element={
-            <ProtectedRoute>
-              <WIP />
-            </ProtectedRoute>
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>

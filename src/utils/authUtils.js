@@ -34,7 +34,9 @@ export const validateToken = async () => {
   const authToken = localStorage.getItem("authToken");
   const user = localStorage.getItem("user");
 
-  if (!authToken || !user) return false;
+  if (!authToken || !user) {
+    return false;
+  }
 
   try {
     const response = await fetch(
@@ -45,12 +47,37 @@ export const validateToken = async () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ username: user }),
+        body: JSON.stringify({ 
+          username: user,
+          token: authToken 
+        }),
       }
     );
-    return response.status === 200;
+
+    if (response.status === 401) {
+      // Token is invalid or expired
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      return false;
+    }
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    
+    // Check if the response indicates success and matches the user
+    if (!data.success || data.user?.username !== user) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error("Token validation failed:", error.message);
+    // Don't remove localStorage items on network errors
     return false;
   }
 };

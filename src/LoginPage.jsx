@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateCaptcha } from "./utils/captcha";
 
-const LoginPage = () => {
+const LoginPage = ({ setIsAuthenticated }) => {
   const [login, setLogin] = useState("");
   const [passwd, setPasswd] = useState("");
   const [captcha, setCaptcha] = useState("");
@@ -51,27 +51,21 @@ const LoginPage = () => {
 
     if (isValid) {
       try {
-        // Process the login value
-        let processedUsername = login.toLowerCase();
-        if (processedUsername.includes('@')) {
-          processedUsername = processedUsername.split('@')[0];
-        }
-        processedUsername = processedUsername.substring(0, 6);
-
         const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username: processedUsername, password: passwd }),
+          body: JSON.stringify({ username: login, password: passwd }),
         });
 
         const data = await response.json();
 
         if (response.status === 200) {
           localStorage.setItem("authToken", data.authToken);
-          localStorage.setItem("user", processedUsername);
-          navigate("/dashboard");
+          localStorage.setItem("user", login);
+          setIsAuthenticated(true);
+          navigate("/dashboard", { replace: true });
         } else {
           setErrorMessage(data.message || "Invalid credentials or captcha.");
           refreshCaptcha();

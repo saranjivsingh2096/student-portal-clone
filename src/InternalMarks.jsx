@@ -96,8 +96,23 @@ const InternalMarks = () => {
             <SidebarMenu studentProfile={studentProfile} />
           </div>
           <div id="layoutSidenav_content" className="flex-grow-1">
-            <div className="container mt-4 text-center">
-              <p>Error loading data: {pageError?.message || 'Unknown error'}</p>
+            <div className="container mt-4">
+              <div className="card mb-3">
+                <div className="card-header bg-custom text-white">
+                  Internal Mark Details
+                </div>
+                <div className="card-body">
+                  <Table
+                    columns={[
+                      { title: "Code", key: "code", width: "15%" },
+                      { title: "Description", key: "description", width: "15%" },
+                      { title: "Mark / Max. Mark", key: "marks", width: "15%" },
+                    ]}
+                    data={[]}
+                    isLoading={false}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -125,9 +140,23 @@ const InternalMarks = () => {
             <SidebarMenu studentProfile={studentProfile} />
           </div>
           <div id="layoutSidenav_content" className="flex-grow-1">
-            <div className="container mt-4 text-center">
-              <img src="./images/empty.png" alt="No data" style={{height: '50px'}} />
-              <p>No internal marks data found or profile is missing.</p>
+            <div className="container mt-4">
+              <div className="card mb-3">
+                <div className="card-header bg-custom text-white">
+                  Internal Mark Details
+                </div>
+                <div className="card-body">
+                  <Table
+                    columns={[
+                      { title: "Code", key: "code", width: "15%" },
+                      { title: "Description", key: "description", width: "15%" },
+                      { title: "Mark / Max. Mark", key: "marks", width: "15%" },
+                    ]}
+                    data={[]}
+                    isLoading={false}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
