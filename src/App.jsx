@@ -17,20 +17,23 @@ import Grade from "./Grade";
 import WIP from "./WIP";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const checkAuthentication = async () => {
       const token = localStorage.getItem("authToken");
       const user = localStorage.getItem("user");
-      
       if (!token || !user) {
         setIsAuthenticated(false);
+        setIsLoading(false);
         return;
       }
-
+      setIsAuthenticated(null); // loading
+      setIsLoading(true);
       const valid = await validateToken();
       setIsAuthenticated(valid);
+      setIsLoading(false);
     };
 
     checkAuthentication();
@@ -45,6 +48,10 @@ function App() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  if (isLoading || isAuthenticated === null) {
+    return <></>;
+  }
 
   return (
     <Router>
