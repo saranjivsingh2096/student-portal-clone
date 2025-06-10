@@ -12,12 +12,12 @@ import Dashboard from "./Dashboard";
 import PersonalDetails from "./PersonalDetails";
 import Attendance from "./Attendance";
 import FeePayment from "./FeePayment";
-import InternalMarks from "./InternalMarks";  
+import InternalMarks from "./InternalMarks";
 import Grade from "./Grade";
 import WIP from "./WIP";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function App() {
         setIsLoading(false);
         return;
       }
-      setIsAuthenticated(null); // loading
+      setIsAuthenticated(null);
       setIsLoading(true);
       const valid = await validateToken();
       setIsAuthenticated(valid);
@@ -40,13 +40,13 @@ function App() {
 
     // Add event listener for storage changes
     const handleStorageChange = (e) => {
-      if (e.key === 'authToken' || e.key === 'user') {
+      if (e.key === "authToken" || e.key === "user") {
         checkAuthentication();
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   if (isLoading || isAuthenticated === null) {
@@ -145,6 +145,87 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/abc-entry"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/exam-hallticket"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/summer-term-registration"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/scribe-request"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/revaluation-registration"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transcript"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/name-change"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/community-certificate"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/placement-insight"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student-feedback"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <WIP />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="*"
           element={
